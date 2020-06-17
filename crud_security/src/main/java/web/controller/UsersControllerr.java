@@ -39,8 +39,8 @@ public class UsersControllerr {
     }
 
     @PostMapping(value = "/login")
-    public String loginUserPost(WebRequest webRequest, ModelMap model) {
-        String login = webRequest.getParameter("login");
+    public String loginUserPost(ModelMap model) {
+        String login = (String) model.getAttribute("login");
         if (userService.getUserByLogin(login) == null) {
             model.addAttribute("errorText", "No user with this data exists");
             return "error";
@@ -63,17 +63,17 @@ public class UsersControllerr {
     }
 
     @PostMapping(value = "/admin/add")
-    public String addUserPost(WebRequest webRequest, ModelMap model) {
+    public String addUserPost(ModelMap model) {
         try {
-            String name = webRequest.getParameter("name");
-            int age = Integer.parseInt(Objects.requireNonNull(webRequest.getParameter("age")));
+            String name = (String) model.getAttribute("name");
+            int age = Integer.parseInt(Objects.requireNonNull((String) model.getAttribute("age")));
             if (name.isEmpty() || age < 0 || age > 150) {
                 model.addAttribute("errorText", "Incorrect user fields.");
                 return "error";
             }
-            String login = webRequest.getParameter("login");
-            String password = webRequest.getParameter("password");
-            String role = webRequest.getParameter("role");
+            String login = (String) model.getAttribute("login");
+            String password = (String) model.getAttribute("password");
+            String role = (String) model.getAttribute("role");
 
             if (userService.isExistLogin(login)) {
                 model.addAttribute("errorText", "User with same login already exist.");
@@ -121,16 +121,16 @@ public class UsersControllerr {
 
 
     @PostMapping(value = "/admin/update")
-    public String editUserPost(WebRequest webRequest, ModelMap model) {
+    public String editUserPost(ModelMap model) {
         try {
 
-            String name = webRequest.getParameter("name");
-            int age = Integer.parseInt(Objects.requireNonNull(webRequest.getParameter("age")));
-            int id = Integer.parseInt(Objects.requireNonNull(webRequest.getParameter("id")));
-            String login = webRequest.getParameter("login");
-            String password = webRequest.getParameter("password");
+            String name = (String) model.getAttribute("name");
+            int age = Integer.parseInt(Objects.requireNonNull((String) model.getAttribute("age")));
+            int id = Integer.parseInt(Objects.requireNonNull((String) model.getAttribute("id")));
+            String login = (String) model.getAttribute("login");
+            String password = (String) model.getAttribute("password");
             password = bCryptPasswordEncoder.encode(password);
-            String role = webRequest.getParameter("role");
+            String role = (String) model.getAttribute("role");
             if (name.isEmpty() || age < 0 || age > 150) {
                 model.addAttribute("errorText", "Incorrect user fields.");
                 return "error";
@@ -177,14 +177,14 @@ public class UsersControllerr {
     }
 
     @PostMapping(value = "admin/delete")
-    public String deleteUserPost(WebRequest webRequest, ModelMap model) {
+    public String deleteUserPost(ModelMap model) {
         try {
-            String name =  webRequest.getParameter("name");
-            String login =  webRequest.getParameter("login");
-            String password =  webRequest.getParameter("password");
-            String role =  webRequest.getParameter("role");
-            int age = Integer.parseInt(Objects.requireNonNull(webRequest.getParameter("age")));
-            long id = Integer.parseInt(Objects.requireNonNull(webRequest.getParameter("id")));
+            String name =  (String) model.getAttribute("name");
+            String login =  (String) model.getAttribute("login");
+            String password =  (String) model.getAttribute("password");
+            String role =  (String) model.getAttribute("role");
+            int age = Integer.parseInt(Objects.requireNonNull((String) model.getAttribute("age")));
+            long id = Integer.parseInt(Objects.requireNonNull((String) model.getAttribute("id")));
 
             Set<Role> roles = new HashSet<>();
             if (role != null && role.equals("user")) {
