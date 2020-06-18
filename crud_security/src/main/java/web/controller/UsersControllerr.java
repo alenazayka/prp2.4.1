@@ -28,24 +28,23 @@ public class UsersControllerr {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
-    @GetMapping(value = "user")
+    @GetMapping(value = "/user")
     public String userPageGet() {
         return "userPage";
     }
 
-        @GetMapping(value = "/login")
+    @GetMapping(value = "/login")
     public String loginUserGet() {
         return "starterPage";
     }
 
     @PostMapping(value = "/login")
-    public String loginUserPost(ModelMap model) {
-        String login = (String) model.getAttribute("login");
+    public String loginUserPost(@RequestParam(value = "login") String login, ModelMap model) {
         if (userService.getUserByLogin(login) == null) {
             model.addAttribute("errorText", "No user with this data exists");
             return "error";
         } else {
-            return "redirect:user";
+            return "redirect:/user";
         }
     }
 
@@ -63,17 +62,15 @@ public class UsersControllerr {
     }
 
     @PostMapping(value = "/admin/add")
-    public String addUserPost(ModelMap model) {
+    public String addUserPost(@RequestParam(value = "login") String login, @RequestParam(value = "password") String password,
+                              @RequestParam(value = "name") String name, @RequestParam(value = "role") String role,
+                              @RequestParam(value = "age") String ageStr, ModelMap model) {
         try {
-            String name = (String) model.getAttribute("name");
-            int age = Integer.parseInt(Objects.requireNonNull((String) model.getAttribute("age")));
+            int age = Integer.parseInt(ageStr);
             if (name.isEmpty() || age < 0 || age > 150) {
                 model.addAttribute("errorText", "Incorrect user fields.");
                 return "error";
             }
-            String login = (String) model.getAttribute("login");
-            String password = (String) model.getAttribute("password");
-            String role = (String) model.getAttribute("role");
 
             if (userService.isExistLogin(login)) {
                 model.addAttribute("errorText", "User with same login already exist.");
@@ -121,16 +118,13 @@ public class UsersControllerr {
 
 
     @PostMapping(value = "/admin/update")
-    public String editUserPost(ModelMap model) {
+    public String editUserPost(@RequestParam(value = "id") String idStr, @RequestParam(value = "login") String login, @RequestParam(value = "password") String password,
+                               @RequestParam(value = "name") String name, @RequestParam(value = "role") String role,
+                               @RequestParam(value = "age") String ageStr, ModelMap model) {
         try {
-
-            String name = (String) model.getAttribute("name");
-            int age = Integer.parseInt(Objects.requireNonNull((String) model.getAttribute("age")));
-            int id = Integer.parseInt(Objects.requireNonNull((String) model.getAttribute("id")));
-            String login = (String) model.getAttribute("login");
-            String password = (String) model.getAttribute("password");
+            int age = Integer.parseInt(ageStr);
+            int id = Integer.parseInt(idStr);
             password = bCryptPasswordEncoder.encode(password);
-            String role = (String) model.getAttribute("role");
             if (name.isEmpty() || age < 0 || age > 150) {
                 model.addAttribute("errorText", "Incorrect user fields.");
                 return "error";
@@ -162,7 +156,7 @@ public class UsersControllerr {
     public String deleteUserGet(@RequestParam(value = "id") String idStr, ModelMap model) {
         User user;
         try {
-            long id = Long.parseLong(idStr);
+            int id = Integer.parseInt(idStr);
             user = userService.getUserById(id);
             if (user == null) {
                 model.addAttribute("errorText", "This user doesn't exist.");
@@ -177,15 +171,12 @@ public class UsersControllerr {
     }
 
     @PostMapping(value = "admin/delete")
-    public String deleteUserPost(ModelMap model) {
+    public String deleteUserPost(@RequestParam(value = "id") String idStr, @RequestParam(value = "login") String login, @RequestParam(value = "password") String password,
+                                 @RequestParam(value = "name") String name, @RequestParam(value = "role") String role,
+                                 @RequestParam(value = "age") String ageStr, ModelMap model) {
         try {
-            String name =  (String) model.getAttribute("name");
-            String login =  (String) model.getAttribute("login");
-            String password =  (String) model.getAttribute("password");
-            String role =  (String) model.getAttribute("role");
-            int age = Integer.parseInt(Objects.requireNonNull((String) model.getAttribute("age")));
-            long id = Integer.parseInt(Objects.requireNonNull((String) model.getAttribute("id")));
-
+            int age = Integer.parseInt(ageStr);
+            int id = Integer.parseInt(idStr);
             Set<Role> roles = new HashSet<>();
             if (role != null && role.equals("user")) {
                 roles.add(roleService.getRoleByName("USER"));
@@ -195,7 +186,7 @@ public class UsersControllerr {
                 roles.add(roleService.getRoleByName("USER"));
             }
 
-            User user = new User(id,login, password, role, name, age, roles);
+            User user = new User(id, login, password, role, name, age, roles);
             if (userService.deleteUser(user)) {
                 return "redirect:/admin";
             }
